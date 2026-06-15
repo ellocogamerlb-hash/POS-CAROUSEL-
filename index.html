@@ -234,7 +234,7 @@
             <div class="relative mt-3">
               <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-amber-400 text-lg"></i>
               <input id="input-barcode" type="text" autofocus class="w-full bg-amber-50/50 border-2 border-amber-200 rounded-3xl py-4 pl-14 pr-5 text-lg focus:border-amber-400 transition" placeholder="🔎 Código de barras o nombre del producto..." onkeydown="if(event.key === 'Enter') { buscarProductoPorCodigoONombre(this.value); this.value = ''; }">
-          </div>
+            </div>
           </div>
           
           <div class="vintage-card mt-6 p-6">
@@ -392,50 +392,34 @@
     let productoStockSeleccionadoId = null;
     let filtroInventarioActual = '';
 
-    // Función para manejar la carga de imágenes locales de forma segura
     function convertirImagenABase64(event) {
       const file = event.target.files[0];
       if (!file) return;
-      
       const reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById('nuevo-img').value = e.target.result;
-      };
+      reader.onload = function(e) { document.getElementById('nuevo-img').value = e.target.result; };
       reader.readAsDataURL(file);
     }
 
-    // Funciones del Visor Ampliado de Imágenes (Exclusivo Inventario)
     function abrirImagenGrande(src, nombre) {
       const modal = document.getElementById('modal-imagen-grande');
       const img = document.getElementById('img-grande-src');
       const titulo = document.getElementById('img-grande-titulo');
-      
       img.src = src || 'https://cdn-icons-png.flaticon.com/512/3050/3050217.png';
       titulo.innerText = nombre;
-      
       modal.classList.remove('hidden');
     }
 
-    // ---------------------- EXPORTAR / IMPORTAR DATOS COMPLETOS -------------------------
+    function cerrarImagenGrande() { document.getElementById('modal-imagen-grande').classList.add('hidden'); }
+
     function exportarDatosCompletos() {
-      const datosBackup = {
-        productos: productos,
-        ventas: ventas,
-        entradasHistorial: entradasHistorial,
-        version: "1.0",
-        exportado: new Date().toISOString()
-      };
-      const jsonStr = JSON.stringify(datosBackup, null, 2);
-      const blob = new Blob([jsonStr], { type: "application/json" });
+      const datosBackup = { productos, ventas, entradasHistorial, version: "1.0", exportado: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(datosBackup, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `sweet_carousel_backup_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
-      document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      alert("🎠 Backup exportado correctamente ✅");
     }
 
     function importarDatosCompletos(event) {
@@ -445,58 +429,25 @@
       reader.onload = function(e) {
         try {
           const contenido = JSON.parse(e.target.result);
-          if (contenido.productos && Array.isArray(contenido.productos) &&
-              contenido.ventas && Array.isArray(contenido.ventas) &&
-              contenido.entradasHistorial && Array.isArray(contenido.entradasHistorial)) {
-            if (confirm("⚠️ Esto reemplazará TODO el inventario, ventas y entradas actuales. ¿Deseas continuar?")) {
-              productos = contenido.productos;
-              ventas = contenido.ventas;
-              entradasHistorial = contenido.entradasHistorial;
-              guardarDatos();
-              carrito = [];
-              renderCarrito();
-              renderInventario();
-              renderEntradasAgrupadas();
-              renderHistorialVentas();
-              mostrarEstadisticas();  
-              productoStockSeleccionadoId = null;
-              document.getElementById('selected-producto-id').value = '';
-              document.getElementById('producto-seleccionado-info').classList.add('hidden');
-              document.getElementById('codigos-gestion').classList.add('hidden');
-              document.getElementById('buscar-producto-stock').value = '';
-              document.getElementById('resultados-busqueda-stock').classList.add('hidden');
-              alert("✅ ¡Datos importados con éxito! Tu tienda ha sido restaurada.");
-              cambiarSeccion(0);
+          if (contenido.productos && contenido.ventas && contenido.entradasHistorial) {
+            if (confirm("⚠️ Reemplazará todo. ¿Continuar?")) {
+              productos = contenido.productos; ventas = contenido.ventas; entradasHistorial = contenido.entradasHistorial;
+              guardarDatos(); carrito = []; renderCarrito(); renderInventario(); renderEntradasAgrupadas(); renderHistorialVentas();
+              alert("✅ Tienda restaurada."); cambiarSeccion(1);
             }
-          } else {
-            alert("❌ Archivo inválido: no contiene la estructura correcta.");
           }
-        } catch(err) {
-          alert("Error al leer el archivo.");
-        }
-        document.getElementById('import-file-input').value = '';
+        } catch(err) { alert("Error al leer archivo."); }
       };
       reader.readAsText(file);
     }
 
-    function asegurarNumero(valor, defecto = 0) {
-      const num = parseFloat(valor);
-      return isNaN(num) ? defecto : num;
-    }
+    function asegurarNumero(valor, defecto = 0) { const num = parseFloat(valor); return isNaN(num) ? defecto : num; }
 
     function migrarDatos() {
-      let cambios = false;
       productos = productos.map(p => {
-        if (p.costo === undefined || p.costo === null) { p.costo = 0; cambios = true; }
-        if (p.precio === undefined || p.precio === null) { p.precio = 0; cambios = true; }
-        if (p.stock === undefined || p.stock === null) { p.stock = 0; cambios = true; }
-        if (!p.codigos) { p.codigos = []; cambios = true; }
-        p.costo = asegurarNumero(p.costo);
-        p.precio = asegurarNumero(p.precio);
-        p.stock = asegurarNumero(p.stock, 0);
-        return p;
+        p.costo = asegurarNumero(p.costo); p.precio = asegurarNumero(p.precio); p.stock = asegurarNumero(p.stock, 0); p.codigos = p.codigos || []; return p;
       });
-      if (cambios) guardarDatos();
+      guardarDatos();
     }
 
     function guardarDatos() { 
@@ -507,45 +458,21 @@
     
     function ordenarAlfabetico(arr) { return [...arr].sort((a,b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })); }
     function formatearPrecio(precio) { return asegurarNumero(precio).toFixed(2); }
+    function escapeHtml(str) { return !str ? '' : String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
 
-    function escapeHtml(str) { 
-      if(!str) return '';
-      return String(str).replace(/[&<>]/g, function(m){
-        if(m==='&') return '&amp;';
-        if(m==='<') return '&lt;';
-        if(m==='>') return '&gt;';
-        return m;
-      }); 
-    }
-
-    function filtrarInventario() {
-      const busqueda = document.getElementById('buscar-inventario').value.toLowerCase().trim();
-      filtroInventarioActual = busqueda;
-      renderInventario();
-    }
+    function filtrarInventario() { filtroInventarioActual = document.getElementById('buscar-inventario').value.toLowerCase().trim(); renderInventario(); }
 
     function renderInventario() {
-      let productosFiltrados = [...productos];
-      if (filtroInventarioActual) {
-        productosFiltrados = productosFiltrados.filter(p => p.nombre.toLowerCase().includes(filtroInventarioActual));
-      }
-      const ordenados = ordenarAlfabetico(productosFiltrados);
+      let filtrados = filtroInventarioActual ? productos.filter(p => p.nombre.toLowerCase().includes(filtroInventarioActual)) : productos;
+      const ordenados = ordenarAlfabetico(filtrados);
       const container = document.getElementById('lista-productos');
-      if (ordenados.length === 0 && filtroInventarioActual) {
-        container.innerHTML = `<div class="text-center text-stone-400 py-10"><i class="fas fa-search text-3xl mb-2"></i><p>No se encontraron productos</p></div>`;
-        document.getElementById('contador-productos').innerText = `0 productos`;
-        return;
-      }
       container.innerHTML = ordenados.map(p => `
         <div class="p-4 flex gap-4 items-center bg-white/40 hover:bg-amber-50/40 transition">
-          <img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/3050/3050217.png'}" 
-               class="product-img object-cover cursor-zoom-in hover:opacity-85 active:scale-95" 
-               onclick="abrirImagenGrande('${p.img || 'https://cdn-icons-png.flaticon.com/512/3050/3050217.png'}', '${escapeHtml(p.nombre)}')"
-               onerror="this.src='https://cdn-icons-png.flaticon.com/512/3050/3050217.png'">
+          <img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/3050/3050217.png'}" class="product-img object-cover cursor-zoom-in shadow-sm" onclick="abrirImagenGrande('${p.img || 'https://cdn-icons-png.flaticon.com/512/3050/3050217.png'}', '${escapeHtml(p.nombre)}')">
           <div class="flex-1">
             <p class="font-semibold text-stone-800">${escapeHtml(p.nombre)}</p>
             <p class="text-xs text-stone-400 font-mono">${p.codigos && p.codigos[0] ? p.codigos[0] : '✨ sin código'}</p>
-            <div class="flex items-center gap-2 mt-1"><span class="font-bold text-amber-700">$${formatearPrecio(p.precio)}</span><span class="stock-badge">📦 ${asegurarNumero(p.stock)}</span></div>
+            <div class="flex items-center gap-2 mt-1"><span class="font-bold text-amber-700">$${formatearPrecio(p.precio)}</span><span class="stock-badge">📦 ${p.stock}</span></div>
           </div>
           <div class="flex gap-2">
             <button onclick="editarProductoInventario(${p.id})" class="text-amber-600 p-2 bg-amber-50 rounded-full w-9 h-9"><i class="fas fa-pen"></i></button>
@@ -558,98 +485,51 @@
 
     function renderCodigosProducto(producto) {
       const container = document.getElementById('lista-codigos-producto');
-      if (!container) return;
-      if (!producto.codigos || producto.codigos.length === 0) {
-        container.innerHTML = '<span class="text-xs text-stone-400 italic">📭 No hay códigos registrados</span>';
-        return;
-      }
+      if (!producto.codigos || producto.codigos.length === 0) { container.innerHTML = '<span class="text-xs text-stone-400 italic">No hay códigos</span>'; return; }
       container.innerHTML = producto.codigos.map(cod => `
-        <span class="codigo-badge">
-          <i class="fas fa-barcode"></i> ${escapeHtml(cod)}
-          <button onclick="eliminarCode(${producto.id}, '${escapeHtml(cod)}')" type="button">✖</button>
-        </span>
+        <span class="codigo-badge"><i class="fas fa-barcode"></i> ${escapeHtml(cod)}<button onclick="eliminarCodigoProducto(${producto.id}, '${escapeHtml(cod)}')" type="button">✖</button></span>
       `).join('');
     }
 
-    window.eliminarCode = function(productoId, codigoAEliminar) {
+    window.eliminarCodigoProducto = function(productoId, codigoAEliminar) {
       const producto = productos.find(p => p.id === productoId);
       if (!producto) return;
       producto.codigos = producto.codigos.filter(c => c !== codigoAEliminar);
-      guardarDatos();
-      renderInventario();
-      if (productoStockSeleccionadoId === productoId) {
-        renderCodigosProducto(producto);
-      }
+      guardarDatos(); renderInventario(); if (productoStockSeleccionadoId === productoId) renderCodigosProducto(producto);
     };
 
     function agregarCodigosProducto() {
-      if (!productoStockSeleccionadoId) return alert("🔍 Selecciona un producto primero");
       const producto = productos.find(p => p.id === productoStockSeleccionadoId);
-      if (!producto) return;
-      const inputCodigos = document.getElementById('nuevos-codigos-input');
-      const nuevosCodigosRaw = inputCodigos.value.trim();
-      if (!nuevosCodigosRaw) return alert("✏️ Ingresa un código");
-      
-      const nuevosCodigos = nuevosCodigosRaw.split(',').map(c => c.trim()).filter(c => c !== '');
-      let agregados = 0;
-      nuevosCodigos.forEach(cod => {
-        if (!producto.codigos.includes(cod)) {
-          producto.codigos.push(cod);
-          agregados++;
-        }
-      });
-      if (agregados > 0) {
-        guardarDatos();
-        renderCodigosProducto(producto);
-        renderInventario();
-        inputCodigos.value = '';
-        alert("✅ Código agregado");
-      }
-    }
-
-    function limpiarFormularioNuevoProducto() {
-      document.getElementById('nuevo-nombre').value = '';
-      document.getElementById('nuevo-img').value = '';
-      document.getElementById('nuevo-file-img').value = '';
-      document.getElementById('nuevo-codigos').value = '';
-      document.getElementById('nuevo-costo').value = '';
-      document.getElementById('nuevo-precio').value = '';
-      document.getElementById('nuevo-stock').value = '0';
-      document.getElementById('nuevo-ganancia').value = '';
+      const input = document.getElementById('nuevos-codigos-input');
+      if (!producto || !input.value.trim()) return;
+      const nuevos = input.value.split(',').map(c => c.trim()).filter(c => c);
+      nuevos.forEach(c => { if (!producto.codigos.includes(c)) producto.codigos.push(c); });
+      guardarDatos(); renderCodigosProducto(producto); renderInventario(); input.value = ''; alert("🏷️ Códigos vinculados");
     }
 
     function crearProductoNuevo() {
       const nombre = document.getElementById('nuevo-nombre').value.trim();
-      if (!nombre) return alert("🌸 El nombre es necesario");
+      if (!nombre) return alert("🌸 El nombre es requerido");
       const codigosRaw = document.getElementById('nuevo-codigos').value;
       const codigos = codigosRaw ? codigosRaw.split(',').map(c=>c.trim()).filter(c=>c) : [];
       
       const nuevoProd = {
         img: document.getElementById('nuevo-img').value.trim() || 'https://cdn-icons-png.flaticon.com/512/3050/3050217.png',
-        nombre: nombre,
-        codigos: codigos,
+        nombre, codigos,
         costo: asegurarNumero(document.getElementById('nuevo-costo').value),
         precio: asegurarNumero(document.getElementById('nuevo-precio').value),
         stock: asegurarNumero(document.getElementById('nuevo-stock').value, 0)
       };
-      
+
       if (window._editandoId) {
         const idx = productos.findIndex(p => p.id == window._editandoId);
-        if (idx !== -1) {
-          productos[idx] = { ...productos[idx], ...nuevoProd };
-          alert("✨ Producto actualizado");
-        }
+        if (idx !== -1) productos[idx] = { ...productos[idx], ...nuevoProd };
         delete window._editandoId;
         document.querySelector('#form-nuevo-producto button').innerHTML = '<i class="fas fa-save"></i> Crear Producto';
-        limpiarFormularioNuevoProducto();
       } else {
-        const nuevoId = Date.now();
-        productos.push({ id: nuevoId, ...nuevoProd });
-        alert("🌸 Producto creado");
-        limpiarFormularioNuevoProducto();
+        productos.push({ id: Date.now(), ...nuevoProd });
       }
-      guardarDatos();
-      renderInventario();
+      guardarDatos(); renderInventario(); limpiarFormularioNuevoProducto(); alert("✨ Guardado correctamente");
     }
 
     function calcularGananciaNuevo() {
@@ -661,14 +541,11 @@
     function filtrarProductosStock() {
       const busqueda = document.getElementById('buscar-producto-stock').value.toLowerCase().trim();
       const resultadosDiv = document.getElementById('resultados-busqueda-stock');
-      if (busqueda === '') { resultadosDiv.classList.add('hidden'); return; }
+      if (!busqueda) { resultadosDiv.classList.add('hidden'); return; }
       let filtrados = productos.filter(p => p.nombre.toLowerCase().includes(busqueda));
-      if (filtrados.length === 0) { resultadosDiv.innerHTML = '<div class="p-3 text-stone-400">No hay registros</div>'; return; }
-      
       resultadosDiv.innerHTML = filtrados.map(p => `
         <div class="search-result-item" onclick="seleccionarProductoStock(${p.id}, '${escapeHtml(p.nombre)}', ${p.stock})">
-          <div class="font-semibold">${escapeHtml(p.nombre)}</div>
-          <div class="text-xs text-stone-500">Stock: ${p.stock}</div>
+          <b>${escapeHtml(p.nombre)}</b> <span class="text-xs text-stone-500">(Stock: ${p.stock})</span>
         </div>
       `).join('');
       resultadosDiv.classList.remove('hidden');
@@ -677,8 +554,8 @@
     function seleccionarProductoStock(id, nombre, stockActual) {
       productoStockSeleccionadoId = id;
       document.getElementById('selected-producto-id').value = id;
-      document.getElementById('selected-nombre').innerHTML = nombre;
-      document.getElementById('selected-stock-actual').innerHTML = stockActual;
+      document.getElementById('selected-nombre').innerText = nombre;
+      document.getElementById('selected-stock-actual').innerText = stockActual;
       document.getElementById('producto-seleccionado-info').classList.remove('hidden');
       document.getElementById('codigos-gestion').classList.remove('hidden');
       document.getElementById('buscar-producto-stock').value = nombre;
@@ -689,172 +566,125 @@
     }
 
     function agregarStockExistente() {
-      const productoId = document.getElementById('selected-producto-id').value;
+      const id = document.getElementById('selected-producto-id').value;
       const cantidad = parseInt(document.getElementById('cantidad-agregar-stock').value);
-      if (!productoId || !cantidad || cantidad <= 0) return alert("Llena los campos correctamente");
-      const producto = productos.find(p => p.id == productoId);
-      if (!producto) return;
+      if (!id || !cantidad || cantidad <= 0) return alert("Revisa la cantidad");
+      const p = productos.find(prod => prod.id == id);
+      if (!p) return;
       
-      producto.stock = asegurarNumero(producto.stock) + cantidad;
-      entradasHistorial.push({
-        id: Date.now(),
-        fecha: new Date().toISOString(),
-        productoId: producto.id,
-        productoNombre: producto.nombre,
-        cantidad: cantidad,
-        nota: document.getElementById('nota-agregar-stock').value.trim() || "Sin nota"
-      });
-      guardarDatos();
-      renderEntradasAgrupadas();
-      renderInventario();
-      alert("✅ Stock agregado con éxito");
+      p.stock = asegurarNumero(p.stock) + cantidad;
+      entradasHistorial.push({ id: Date.now(), fecha: new Date().toISOString(), productoId: p.id, productoNombre: p.nombre, cantidad, nota: document.getElementById('nota-agregar-stock').value.trim() || "Sin nota" });
+      guardarDatos(); renderInventario(); renderEntradasAgrupadas();
+      document.getElementById('selected-stock-actual').innerText = p.stock;
+      alert("📦 Stock actualizado");
     }
 
     function setTipoEntrada(tipo) {
-      const formNuevo = document.getElementById('form-nuevo-producto');
-      const formStock = document.getElementById('form-agregar-stock');
-      if (tipo === 'nuevo') {
-        formNuevo.style.display = 'grid';
-        formStock.style.display = 'none';
-      } else {
-        formNuevo.style.display = 'none';
-        formStock.style.display = 'grid';
-      }
+      document.getElementById('form-nuevo-producto').style.display = tipo === 'nuevo' ? 'grid' : 'none';
+      document.getElementById('form-agregar-stock').style.display = tipo === 'stock' ? 'grid' : 'none';
     }
 
     function renderEntradasAgrupadas() {
       const container = document.getElementById('lista-entradas-agrupadas');
-      if(!container) return;
       const grupos = new Map();
-      entradasHistorial.forEach(entry => {
-        if(!grupos.has(entry.productoId)) grupos.set(entry.productoId, { nombre: entry.productoNombre, total: 0, list: [] });
-        let g = grupos.get(entry.productoId);
-        g.total += entry.cantidad;
-        g.list.push(entry);
+      entradasHistorial.forEach(e => {
+        if(!grupos.has(e.productoId)) grupos.set(e.productoId, { nombre: e.productoNombre, total: 0, logs: [] });
+        let g = grupos.get(e.productoId); g.total += e.shadow || e.amount || e.cantidad; g.logs.push(e);
       });
-      if(grupos.size === 0) { container.innerHTML = '<div class="p-5">No hay entradas aún.</div>'; return; }
+      if(grupos.size === 0) { container.innerHTML = '<p class="text-stone-400 text-center py-4">No hay entradas aún</p>'; return; }
       container.innerHTML = Array.from(grupos.values()).map(g => `
         <div class="entrada-item bg-white">
-          <div class="flex justify-between font-bold"><span>${escapeHtml(g.nombre)}</span><span>Total: ${g.total} uds</span></div>
-          <div class="text-xs space-y-1 mt-1 text-stone-500">
-            ${g.list.map(r => `<div>📅 ${new Date(r.fecha).toLocaleDateString()} -> +${r.cantidad} uds (${escapeHtml(r.nota)})</div>`).join('')}
-          </div>
+          <div class="flex justify-between font-bold text-stone-700"><span>${escapeHtml(g.nombre)}</span><span>Ingresado: ${g.total} uds</span></div>
+          <div class="text-xs text-stone-400 mt-1">${g.logs.map(l => `<div>📅 ${new Date(l.fecha).toLocaleDateString()} -> +${l.amount || l.cantidad} uds (${escapeHtml(l.nota)})</div>`).join('')}</div>
         </div>
       `).join('');
     }
 
     function renderHistorialVentas() {
       const container = document.getElementById('historial-ventas-list');
-      if(!container || ventas.length === 0) return;
+      if(ventas.length === 0) { container.innerHTML = '<p class="text-stone-400 text-center py-6">Sin historial</p>'; return; }
       container.innerHTML = [...ventas].reverse().map(v => `
-        <div class="py-3 border-b">
-          <div class="flex justify-between font-mono text-sm"><span>📅 ${new Date(v.fecha).toLocaleString()}</span><span class="font-bold text-amber-700">$${v.total.toFixed(2)}</span></div>
-          <div class="text-xs text-stone-500 mt-1">${v.productos.map(p => `${p.cantidad}x ${escapeHtml(p.nombre)}`).join(', ')}</div>
+        <div class="py-3 border-b text-sm">
+          <div class="flex justify-between font-mono"><span>📅 ${new Date(v.fecha).toLocaleString()}</span><b class="text-amber-700">$${v.total.toFixed(2)}</b></div>
+          <div class="text-xs text-stone-500 mt-0.5">${v.productos.map(p => `${p.cantidad}x ${escapeHtml(p.nombre)}`).join(', ')}</div>
         </div>
       `).join('');
     }
 
     function buscarProductoPorCodigoONombre(texto) {
       if (!texto.trim()) return;
-      const busq = texto.trim().toLowerCase();
-      let producto = productos.find(p => p.codigos && p.codigos.includes(texto.trim())) || 
-                     productos.find(p => p.nombre.toLowerCase().includes(busq));
-      if (producto) {
-        if (producto.stock <= 0) { alert("🌸 Sin stock"); return; }
-        let item = carrito.find(i => i.id === producto.id);
-        if (item) {
-          if (item.cantidad < producto.stock) item.cantidad++;
-        } else {
-          carrito.push({ ...producto, cantidad: 1 });
-        }
+      const t = texto.trim().toLowerCase();
+      let prod = productos.find(p => p.codigos && p.codigos.includes(texto.trim())) || productos.find(p => p.nombre.toLowerCase().includes(t));
+      if (prod) {
+        if (prod.stock <= 0) return alert("🌸 Sin stock");
+        let item = carrito.find(i => i.id === prod.id);
+        if (item) { if (item.shadow || item.cantidad < prod.stock) item.cantidad++; } 
+        else { carrito.push({ ...prod, cantidad: 1 }); }
         renderCarrito();
-      } else {
-        alert("🎠 No encontrado");
-      }
+      } else { alert("🎠 No encontrado"); }
     }
 
     function renderCarrito() {
-      let total = 0;
-      const container = document.getElementById('carrito-items');
-      if (carrito.length === 0) { container.innerHTML = '<p class="text-center py-5">Carrito vacío ✨</p>'; document.getElementById('total-pagar').innerText = '$0.00'; return; }
+      let total = 0; const container = document.getElementById('carrito-items');
+      if(!carrito.length) { container.innerHTML = '<p class="text-center text-stone-400 py-4">Carrito vacío</p>'; document.getElementById('total-pagar').innerText = '$0.00'; return; }
       container.innerHTML = carrito.map((item, idx) => {
-        total += item.precio * item.cantidad;
-        return `
-          <div class="flex justify-between items-center bg-white p-3 rounded-xl border">
-            <div><p class="font-semibold">${escapeHtml(item.nombre)}</p><p class="text-xs font-bold">$${item.precio} x ${item.cantidad}</p></div>
-            <button onclick="carrito.splice(${idx},1); renderCarrito();" class="text-rose-500"><i class="fas fa-trash-alt"></i></button>
-          </div>`;
+        total += item.precio * item.shadow || item.precio * item.cantidad;
+        return `<div class="flex justify-between p-3 bg-white rounded-xl border"><div><b>${escapeHtml(item.nombre)}</b><p class="text-xs">$${item.precio} x ${item.cantidad}</p></div><button onclick="carrito.splice(${idx},1); renderCarrito();" class="text-rose-500"><i class="fas fa-trash-alt"></i></button></div>`;
       }).join('');
-      document.getElementById('total-pagar').innerText = '$' + total.toFixed(2);
-      calcularCambio();
+      document.getElementById('total-pagar').innerText = '$' + total.toFixed(2); calcularCambio();
     }
 
     function calcularCambio() {
-      const total = parseFloat(document.getElementById('total-pagar').innerText.replace('$','')) || 0;
-      const recibido = parseFloat(document.getElementById('dinero-recibido').value) || 0;
-      document.getElementById('cambio').innerText = '$' + (recibido >= total ? (recibido - total).toFixed(2) : '0.00');
+      const t = parseFloat(document.getElementById('total-pagar').innerText.replace('$','')) || 0;
+      const r = parseFloat(document.getElementById('dinero-recibido').value) || 0;
+      document.getElementById('cambio').innerText = '$' + (r >= t ? (r - t).toFixed(2) : '0.00');
     }
 
     function finalizarVenta() {
-      if (!carrito.length) return;
+      if(!carrito.length) return;
       const total = carrito.reduce((s,i) => s + (i.precio * i.cantidad), 0);
       const recibido = parseFloat(document.getElementById('dinero-recibido').value) || total;
-      carrito.forEach(item => {
-        let orig = productos.find(p => p.id === item.id);
-        if (orig) orig.stock -= item.cantidad;
-      });
-      let nuevaVenta = { id: Date.now(), fecha: new Date().toISOString(), productos: [...carrito], total, recibido, cambio: recibido - total };
-      ventas.push(nuevaVenta);
-      guardarDatos();
-      mostrarTicket(nuevaVenta);
-      carrito = [];
-      document.getElementById('dinero-recibido').value = '';
-      renderCarrito();
-      renderInventario();
+      carrito.forEach(c => { let o = productos.find(p => p.id === c.id); if(o) o.stock -= c.shadow || c.cantidad; });
+      let v = { id: Date.now(), fecha: new Date().toISOString(), productos: [...carrito], total, recibido, cambio: recibido - total };
+      ventas.push(v); guardarDatos(); mostrarTicket(v); carrito = []; document.getElementById('dinero-recibido').value = ''; renderCarrito(); renderInventario();
     }
 
     function mostrarTicket(v) {
       document.getElementById('contenido-ticket').innerHTML = `
-        <div class="text-center font-serif">
-          <h3 class="text-xl font-bold">Sweet Carousel</h3>
-          <p class="text-xs">San Cristóbal de las Casas</p>
-          <p class="text-xs">${new Date(v.fecha).toLocaleString()}</p>
+        <div class="text-center font-serif"><h3>Sweet Carousel</h3><p class="text-xs">San Cristóbal de las Casas</p></div>
+        <div class="my-3 divide-y border-y border-dashed py-1">
+          ${v.productos.map(p => `<div class="flex justify-between text-xs"><span>${p.cantidad}x ${escapeHtml(p.nombre)}</span><span>$${(p.precio * p.cantidad).toFixed(2)}</span></div>`).join('')}
         </div>
-        <div class="my-4 divide-y border-y border-dashed py-2">
-          ${v.productos.map(p => `<div class="flex justify-between text-sm"><span>${p.cantidad}x ${escapeHtml(p.nombre)}</span><span>$${(p.precio*p.cantidad).toFixed(2)}</span></div>`).join('')}
-        </div>
-        <div class="font-bold flex justify-between"><span>TOTAL:</span><span>$${v.total.toFixed(2)}</span></div>
+        <div class="font-bold flex justify-between text-sm"><span>TOTAL:</span><span>$${v.total.toFixed(2)}</span></div>
       `;
       document.getElementById('modal-ticket').classList.remove('hidden');
     }
 
-    function cerrarModalTicket() { document.getElementById('modal-ticket').classList.add('hidden'); }
+    function mostrarEstadisticas() {
+      migrarDatos(); const ahora = new Date();
+      const calc = (filtro) => {
+        let items = ventas.filter(filtro), monto = 0, ganancia = 0;
+        items.forEach(v => { monto += v.total; v.productos.forEach(p => { ganancia += ((p.precio - (p.costo || 0)) * p.cantidad); }); });
+        return { count: items.length, monto, ganancia };
+      };
+      const hoy = calc(v => new Date(v.fecha).toDateString() === ahora.toDateString());
+      document.getElementById('stats-periodos').innerHTML = `
+        <div class="vintage-card p-4 text-center"><p class="text-stone-400 text-xs">HOY</p><b class="text-2xl text-amber-800">$${hoy.monto.toFixed(2)}</b><p class="text-xs text-emerald-700">Ganancia: $${hoy.ganancia.toFixed(2)}</p></div>
+      `;
+      document.getElementById('estadisticas-content').innerHTML = `<div class="bg-stone-800 rounded-2xl p-4 text-center text-white"><p class="text-xs text-amber-200">TOTAL DE VENTAS</p><b class="text-3xl">${ventas.length}</b></div>`;
+    }
+
     function cambiarSeccion(n) {
       document.querySelectorAll('.seccion').forEach((s,i)=>s.classList.toggle('active', i===n));
       document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', i===n));
-      if(n===0) renderInventario();
-      if(n===3) renderEntradasAgrupadas();
-      if(n===4) renderHistorialVentas();
+      if(n===0) renderInventario(); if(n===2) mostrarEstadisticas(); if(n===3) renderEntradasAgrupadas(); if(n===4) renderHistorialVentas();
     }
 
-    window.cerrarImagenGrande = function() { document.getElementById('modal-imagen-grande').classList.add('hidden'); };
-    window.cambiarSeccion = cambiarSeccion;
-    window.setTipoEntrada = setTipoEntrada;
-    window.filtrarProductosStock = filtrarProductosStock;
-    window.seleccionarProductoStock = seleccionarProductoStock;
-    window.agregarStockExistente = agregarStockExistente;
-    window.crearProductoNuevo = crearProductoNuevo;
-    window.calcularGananciaNuevo = calcularGananciaNuevo;
-    window.convertirImagenABase64 = convertirImagenABase64;
-    window.agregarCodigosProducto = agregarCodigosProducto;
-    window.exportarDatosCompletos = exportarDatosCompletos;
-    window.importarDatosCompletos = importarDatosCompletos;
-    window.buscarProductoPorCodigoONombre = buscarProductoPorCodigoONombre;
-    window.calcularCambio = calcularCambio;
-    window.finalizarVenta = finalizarVenta;
-    window.cerrarModalTicket = cerrarModalTicket;
-
-    window.onload = () => { migrarDatos(); renderInventario(); setTipoEntrada('nuevo'); cambiarSeccion(1); };
+    window.cambiarSeccion = cambiarSeccion; window.setTipoEntrada = setTipoEntrada; window.filtrarProductosStock = filtrarProductosStock; window.seleccionarProductoStock = seleccionarProductoStock; window.agregarStockExistente = agregarStockExistente; window.crearProductoNuevo = crearProductoNuevo; window.calcularGananciaNuevo = calcularGananciaNuevo; window.convertirImagenABase64 = convertirImagenABase64; window.agregarCodigosProducto = agregarCodigosProducto; window.exportarDatosCompletos = exportarDatosCompletos; window.importarDatosCompletos = importarDatosCompletos; window.buscarProductoPorCodigoONombre = buscarProductoPorCodigoONombre; window.calcularChange = calcularCambio; window.finalizarVenta = finalizarVenta; window.cerrarModalTicket = () => document.getElementById('modal-ticket').classList.add('hidden');
+    document.addEventListener('click', e => {
+      const container = document.querySelector('#form-agregar-stock .relative');
+      if (container && !container.contains(e.target)) document.getElementById('resultados-busqueda-stock')?.classList.add('hidden');
+    });
   </script>
 
   <script type="module">
@@ -862,7 +692,7 @@
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
-    // 1. Tus credenciales reales vinculadas de tu consola de Firebase
+    // Credenciales oficiales de tu proyecto POS CAROUSEL
     const firebaseConfig = {
       apiKey: "AIzaSyCYagTaDf69NVYoMJmQu6CK-J0wikSePpI",
       authDomain: "posc-2f22d.firebaseapp.com",
@@ -873,47 +703,55 @@
       measurementId: "G-SZRWKWLPE6"
     };
 
-    // 2. Inicialización limpia de servicios
+    // Inicializando servicios básicos
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // Exportar db a nivel global para que tu teléfono y otras funciones lo lean
+    // Hacemos accesible Firestore globalmente
     window.db = db;
 
-    // Elementos de la pantalla de login
     const loginScreen = document.getElementById('login-screen');
     const posContent = document.getElementById('pos-content');
     const btnLogin = document.getElementById('btn-google-login');
 
-    // 3. Escuchador de Autenticación integrado
+    // Escuchar si hay una sesión de Google activa
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        // Ocultar login y mostrar el POS intacto
         loginScreen.style.display = 'none';
         posContent.style.display = 'block';
-        setTimeout(() => document.getElementById('input-barcode')?.focus(), 200);
+        
+        // Ejecutar funciones de carga inicial
+        migrarDatos();
+        renderInventario();
+        setTipoEntrada('nuevo');
+        cambiarSeccion(1);
+        
+        setTimeout(() => document.getElementById('input-barcode')?.focus(), 250);
       } else {
+        // Forzar bloqueo visual
         loginScreen.style.display = 'flex';
         posContent.style.display = 'none';
       }
     });
 
-    // 4. Acción corregida para ingresar con Google
+    // Acción al presionar el botón "Ingresar con Google"
     btnLogin.addEventListener('click', () => {
       signInWithPopup(auth, provider)
         .then((result) => {
-          console.log("¡Sesión iniciada con éxito en Sweet Carousel! ✨", result.user.displayName);
+          console.log("¡Acceso concedido a Sweet Carousel!", result.user.displayName);
           
-          // PRUEBA DE CONEXIÓN INMEDIATA A FIRESTORE
+          // Guardar un log rápido del acceso en tu base de datos de Cloud Firestore
           addDoc(collection(db, "productos"), {
-            nombre: "Ingreso con Google: " + result.user.displayName,
+            nombre: "Usuario autenticado: " + result.user.displayName,
             fecha: new Date().toISOString()
-          }).then(() => console.log("Log de inicio registrado en Firestore"));
+          }).catch(e => console.error("Error al registrar log", e));
         })
         .catch((error) => {
-          console.error("Error en la autenticación con Google: ", error);
-          alert("Hubo un error de autenticación: " + error.message);
+          console.error("Error al autenticar:", error);
+          alert("No se pudo iniciar sesión: Asegúrate de tener activada la autenticación con Google en la consola de Firebase.");
         });
     });
   </script>
