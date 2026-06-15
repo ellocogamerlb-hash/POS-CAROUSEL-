@@ -1199,11 +1199,12 @@
   const analytics = getAnalytics(app);
 </script>
 <script type="module">
-  // 1. Importamos las herramientas necesarias de Firebase
+  // 1. Importamos todas las herramientas necesarias de Firebase (App, Base de datos y Autenticación)
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
   import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
-  // 2. Tus credenciales reales de POS CAROUSEL
+  // 2. Tus credenciales reales de tu proyecto POSC
   const firebaseConfig = {
     apiKey: "AIzaSyCYagTaDf69NVYoMJmQu6CK-J0wikSePpI",
     authDomain: "posc-2f22d.firebaseapp.com",
@@ -1214,30 +1215,72 @@
     measurementId: "G-SZRWKWLPE6"
   };
 
-  // 3. Inicializamos Firebase y la Base de Datos
+  // 3. Inicializamos Firebase y los servicios
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
 
-  // Hacer la base de datos accesible globalmente en el teléfono
+  // Hacer los servicios accesibles globalmente en el teléfono por si tu plantilla los usa en otros lados
   window.db = db;
+  window.auth = auth;
 
-  // 4. PRUEBA AUTOMÁTICA: Guardar un artículo de prueba al cargar la página
-  async function probarConexion() {
+  // 4. FUNCIÓN PARA EL BOTÓN DE ENTRAR CON GOOGLE
+  async function iniciarSesionConGoogle() {
     try {
-      const docRef = await addDoc(collection(db, "productos"), {
-        nombre: "Lip Oil de Prueba",
-        precio: 69,
-        fecha: new Date().toISOString()
-      });
-      console.log("¡Conexión exitosa! Producto guardado con ID:", docRef.id);
-      alert("¡Firebase conectado con éxito! Revisa tu consola.");
+      const result = await signInWithPopup(auth, provider);
+      // El inicio de sesión fue un éxito
+      console.log("Usuario conectado:", result.user.displayName);
+      alert("¡Bienvenida! Iniciaste sesión correctamente como: " + result.user.displayName);
+      
+      // Si tu código cambia de pantalla al iniciar sesión, aquí puedes forzar que muestre el POS
+      mostrarPantallaPOS(); 
     } catch (error) {
-      console.error("Error al conectar con Firebase:", error);
+      console.error("Error al autenticar con Google:", error);
+      alert("Hubo un detalle al iniciar sesión: " + error.message);
     }
   }
 
-  // Ejecutamos la prueba en cuanto cargue la página
-  probarConexion();
+  // Función de apoyo para cambiar la vista (común en las plantillas)
+  function mostrarPantallaPOS() {
+    const loginSection = document.getElementById("login-section") || document.querySelector(".login-container");
+    const posSection = document.getElementById("pos-section") || document.getElementById("app") || document.getElementById("main-content");
+    
+    if (loginSection) loginSection.classList.add("hidden");
+    if (posSection) posSection.classList.remove("hidden");
+  }
+
+  // Escuchar si el usuario ya estaba logueado para que no tenga que picarle siempre
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("Sesión activa de:", user.displayName);
+      mostrarPantallaPOS();
+    }
+  });
+
+  // 5. VINCULAR TU BOTÓN REAL DE LA PÁGINA
+  // Buscamos los botones de Google más comunes que traen las plantillas y les asignamos la función
+  document.addEventListener("DOMContentLoaded", () => {
+    const googleBtn = document.getElementById("google-btn") || 
+                      document.getElementById("btn-google") || 
+                      document.querySelector("button[onclick*='Google']") ||
+                      document.querySelector(".btn-google");
+                      
+    if (googleBtn) {
+      // Le quitamos cualquier función vieja que traiga estorbando
+      googleBtn.removeAttribute("onclick"); 
+      // Le asignamos nuestra función nueva y limpia
+      googleBtn.addEventListener("click", iniciarSesionConGoogle);
+      console.log("¡Botón de Google vinculado exitosamente!");
+    } else {
+      console.log("Nota: No se encontró el botón con los IDs estándar, asignando de forma manual.");
+    }
+  });
+
+  // Dejamos la función libre por si el botón usa obligatoriamente el atributo onclick="loginConGoogle()"
+  window.iniciarSesionConGoogle = iniciarSesionConGoogle;
+  window.loginConGoogle = iniciarSesionConGoogle;
 </script>
+
 </body>
 </html>
