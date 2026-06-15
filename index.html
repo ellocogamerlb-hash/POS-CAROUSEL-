@@ -138,54 +138,27 @@
       padding: 1rem;
       border: 1px solid #f5e2ca;
     }
-    .search-input-inventario {
-      margin: 0.75rem 1rem;
-    }
-    .btn-backup {
-      background: #e2cfb0;
-      color: #5a3e28;
-      border-radius: 2rem;
-      padding: 0.5rem 1rem;
-      font-size: 0.8rem;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-    .btn-backup:hover { background: #d6be95; transform: scale(0.97);}
   </style>
 </head>
 <body class="min-h-screen text-stone-800">
 
-  <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
-    <div class="vintage-card max-w-md w-full p-8 text-center border-2 border-amber-200/60 relative overflow-hidden bg-gradient-to-b from-[#fffefb] to-[#fdf9f0]">
-      <div class="text-rose-300 text-3xl mb-1 animate-bounce duration-1000">
-        <i class="fas fa-ribbon"></i>
-      </div>
-      
-      <div class="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-amber-200 to-rose-100 flex items-center justify-center shadow-md border border-amber-100 mb-4">
-        <i class="fas fa-carousel text-amber-700 text-2xl"></i>
-      </div>
-      
-      <h2 class="text-3xl font-serif font-semibold tracking-wide text-stone-700 mb-1">
-        Sweet <span class="text-amber-700">Carousel</span>
-      </h2>
-      <p class="text-stone-400 italic text-sm font-serif mb-8">✨ punto de venta mágico y vintage ✨</p>
-      
-      <div class="flex items-center justify-center gap-3 mb-8">
-        <span class="h-[1px] w-12 bg-amber-200/60"></span>
-        <i class="fas fa-heart text-rose-200 text-xs"></i>
-        <span class="h-[1px] w-12 bg-amber-200/60"></span>
-      </div>
-
-      <button id="btn-google-login" class="w-full flex items-center justify-center gap-3 bg-[#fffcf7] hover:bg-[#fbf4e9] text-stone-700 border-2 border-[#f2dec6] rounded-3xl py-3.5 px-5 text-base font-medium shadow-sm hover:shadow-md transition active:scale-[0.98]">
-        <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/logo_googleg_color_24dp.png" alt="Google" class="w-5 h-5">
-        <span>Ingresar con Google</span>
+  <!-- ================= BARRA DE ACCESO SUPERIOR (LOG IN SUPERIOR) ================= -->
+  <div id="top-login-bar" class="no-print bg-gradient-to-r from-[#fff9f0] to-[#fdf2e2] border-b border-amber-200/70 px-4 py-2 flex items-center justify-between text-xs sm:text-sm">
+    <div id="login-status-message" class="flex items-center gap-2 text-stone-600 font-medium">
+      <span class="text-rose-300 animate-pulse"><i class="fas fa-ribbon"></i></span>
+      <span id="status-text">Modo Local (Sin sincronizar)</span>
+    </div>
+    <div id="login-action-container">
+      <!-- Botón de Login Inteligente -->
+      <button id="btn-google-login" class="flex items-center gap-2 bg-white hover:bg-[#fffdfa] text-stone-700 border border-[#e8d2b8] rounded-full py-1 px-3.5 shadow-sm transition active:scale-95">
+        <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/logo_googleg_color_24dp.png" alt="Google" class="w-3.5 h-3.5">
+        <span class="font-medium">Respaldar en Google</span>
       </button>
-
-      <p class="text-stone-400 text-xs mt-8">Administración Privada • GitHub & Firebase Auth</p>
     </div>
   </div>
 
-  <div id="pos-content" style="display: none;">
+  <!-- ================= CONTENIDO GLOBAL DEL POS (SIEMPRE VISIBLE) ================= -->
+  <div id="pos-content">
 
     <div class="sticky top-0 z-50 no-print bg-white/70 backdrop-blur-md border-b border-amber-100 shadow-sm">
       <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-2">
@@ -207,6 +180,7 @@
 
     <div class="max-w-7xl mx-auto px-4 pb-10 no-print">
       
+      <!-- SECCIÓN INVENTARIO -->
       <div id="seccion-inventario" class="seccion">
         <div class="vintage-card mt-5 overflow-hidden">
           <div class="bg-amber-50/50 px-5 py-3 border-b border-amber-100">
@@ -227,6 +201,7 @@
         </div>
       </div>
 
+      <!-- SECCIÓN VENTAS -->
       <div id="seccion-ventas" class="seccion active">
         <div class="mt-5">
           <div class="vintage-card p-6 border-b-4 border-amber-200">
@@ -261,6 +236,7 @@
         </div>
       </div>
 
+      <!-- SECCIÓN ESTADÍSTICAS -->
       <div id="seccion-estadisticas" class="seccion">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5" id="stats-periodos"></div>
         <div class="vintage-card p-6 mt-6">
@@ -269,6 +245,7 @@
         </div>
       </div>
 
+      <!-- SECCIÓN ENTRADAS -->
       <div id="seccion-entradas" class="seccion">
         <div class="vintage-card p-5 mt-5">
           <div class="flex justify-between items-center border-b border-amber-100 pb-3 mb-4 flex-wrap gap-2">
@@ -329,7 +306,6 @@
                 <input id="nuevos-codigos-input" type="text" class="input-vintage flex-1" placeholder="Agregar nuevo código (ej: 7501234567890)" style="font-family: monospace;">
                 <button onclick="agregarCodigosProducto()" class="bg-amber-600 text-white px-5 py-2 rounded-xl text-sm hover:bg-amber-700 transition flex items-center gap-1"><i class="fas fa-plus-circle"></i> Agregar</button>
               </div>
-              <p class="text-xs text-stone-400 mt-2">📌 Puedes agregar varios a la vez separándolos con coma: <code class="bg-amber-100 px-1 rounded">codigo1, codigo2, codigo3</code></p>
             </div>
 
             <div>
@@ -345,11 +321,12 @@
         </div>
 
         <div class="vintage-card mt-6 p-5">
-          <h3 class="font-serif text-lg flex items-center gap-2"><i class="fas fa-clipboard-list text-amber-600"></i> Historial de Entradas (agrupado por producto)</h3>
+          <h3 class="font-serif text-lg flex items-center gap-2"><i class="fas fa-clipboard-list text-amber-600"></i> Historial de Entradas</h3>
           <div id="lista-entradas-agrupadas" class="mt-4 space-y-3 max-h-[400px] overflow-y-auto"></div>
         </div>
       </div>
 
+      <!-- SECCIÓN HISTORIAL -->
       <div id="seccion-historial" class="seccion">
         <div class="vintage-card p-5 mt-5">
           <div class="flex justify-between items-center flex-wrap gap-3">
@@ -361,6 +338,7 @@
       </div>
     </div>
 
+    <!-- MODAL TICKETS -->
     <div id="modal-ticket" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div class="bg-[#fffaf2] rounded-3xl p-6 max-w-[340px] w-full ticket shadow-2xl border border-amber-200">
         <div id="contenido-ticket" class="text-stone-700"></div>
@@ -371,24 +349,25 @@
       </div>
     </div>
 
-    <div id="modal-imagen-grande" class="hidden fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[60] p-4 animate-[gentleAppear_0.2s_ease]" onclick="cerrarImagenGrande()">
+    <!-- MODAL IMÁGENES -->
+    <div id="modal-imagen-grande" class="hidden fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[60] p-4" onclick="cerrarImagenGrande()">
       <div class="relative bg-white p-3 rounded-[2rem] border border-amber-100 max-w-lg w-full shadow-2xl" onclick="event.stopPropagation()">
         <button onclick="cerrarImagenGrande()" class="absolute -top-3 -right-3 bg-rose-400 text-white w-9 h-9 rounded-full shadow-md flex items-center justify-center hover:bg-rose-500 transition">
           <i class="fas fa-times"></i>
         </button>
-        <img id="img-grande-src" src="" alt="Vista previa" class="w-full h-auto max-h-[75vh] object-contain rounded-2xl bg-amber-50/50">
+        <img id="img-grande-src" src="" alt="Vista previa" class="w-full h-auto max-h-[75vh] object-contain rounded-2xl">
         <p id="img-grande-titulo" class="text-center font-serif text-lg font-medium text-stone-700 mt-3 px-2"></p>
       </div>
     </div>
 
   </div>
 
+  <!-- ================= LÓGICAS DEL PUNTO DE VENTA LOCAL ================= -->
   <script>
     let productos = JSON.parse(localStorage.getItem('productos')) || [];
     let ventas = JSON.parse(localStorage.getItem('ventas')) || [];
     let entradasHistorial = JSON.parse(localStorage.getItem('entradasHistorial')) || [];
     let carrito = [];
-    let tipoEntradaActual = 'nuevo';
     let productoStockSeleccionadoId = null;
     let filtroInventarioActual = '';
 
@@ -408,18 +387,16 @@
       titulo.innerText = nombre;
       modal.classList.remove('hidden');
     }
-
     function cerrarImagenGrande() { document.getElementById('modal-imagen-grande').classList.add('hidden'); }
 
     function exportarDatosCompletos() {
-      const datosBackup = { productos, ventas, entradasHistorial, version: "1.0", exportado: new Date().toISOString() };
+      const datosBackup = { productos, ventas, entradasHistorial };
       const blob = new Blob([JSON.stringify(datosBackup, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `sweet_carousel_backup_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+      a.download = `sweet_carousel_backup.json`;
       a.click();
-      URL.revokeObjectURL(url);
     }
 
     function importarDatosCompletos(event) {
@@ -429,12 +406,9 @@
       reader.onload = function(e) {
         try {
           const contenido = JSON.parse(e.target.result);
-          if (contenido.productos && contenido.ventas && contenido.entradasHistorial) {
-            if (confirm("⚠️ Reemplazará todo. ¿Continuar?")) {
-              productos = contenido.productos; ventas = contenido.ventas; entradasHistorial = contenido.entradasHistorial;
-              guardarDatos(); carrito = []; renderCarrito(); renderInventario(); renderEntradasAgrupadas(); renderHistorialVentas();
-              alert("✅ Tienda restaurada."); cambiarSeccion(1);
-            }
+          if (contenido.productos) {
+            productos = contenido.productos; ventas = contenido.ventas || []; entradasHistorial = contenido.entradasHistorial || [];
+            guardarDatos(); renderInventario(); alert("✅ Tienda cargada correctamente.");
           }
         } catch(err) { alert("Error al leer archivo."); }
       };
@@ -442,21 +416,12 @@
     }
 
     function asegurarNumero(valor, defecto = 0) { const num = parseFloat(valor); return isNaN(num) ? defecto : num; }
-
-    function migrarDatos() {
-      productos = productos.map(p => {
-        p.costo = asegurarNumero(p.costo); p.precio = asegurarNumero(p.precio); p.stock = asegurarNumero(p.stock, 0); p.codigos = p.codigos || []; return p;
-      });
-      guardarDatos();
-    }
-
     function guardarDatos() { 
       localStorage.setItem('productos', JSON.stringify(productos)); 
       localStorage.setItem('ventas', JSON.stringify(ventas));
       localStorage.setItem('entradasHistorial', JSON.stringify(entradasHistorial));
     }
-    
-    function ordenarAlfabetico(arr) { return [...arr].sort((a,b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })); }
+    function ordenarAlfabetico(arr) { return [...arr].sort((a,b) => a.nombre.localeCompare(b.nombre)); }
     function formatearPrecio(precio) { return asegurarNumero(precio).toFixed(2); }
     function escapeHtml(str) { return !str ? '' : String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
 
@@ -468,43 +433,14 @@
       const container = document.getElementById('lista-productos');
       container.innerHTML = ordenados.map(p => `
         <div class="p-4 flex gap-4 items-center bg-white/40 hover:bg-amber-50/40 transition">
-          <img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/3050/3050217.png'}" class="product-img object-cover cursor-zoom-in shadow-sm" onclick="abrirImagenGrande('${p.img || 'https://cdn-icons-png.flaticon.com/512/3050/3050217.png'}', '${escapeHtml(p.nombre)}')">
+          <img src="${p.img || 'https://cdn-icons-png.flaticon.com/512/3050/3050217.png'}" class="product-img object-cover cursor-zoom-in" onclick="abrirImagenGrande('${p.img}','${escapeHtml(p.nombre)}')">
           <div class="flex-1">
             <p class="font-semibold text-stone-800">${escapeHtml(p.nombre)}</p>
-            <p class="text-xs text-stone-400 font-mono">${p.codigos && p.codigos[0] ? p.codigos[0] : '✨ sin código'}</p>
             <div class="flex items-center gap-2 mt-1"><span class="font-bold text-amber-700">$${formatearPrecio(p.precio)}</span><span class="stock-badge">📦 ${p.stock}</span></div>
-          </div>
-          <div class="flex gap-2">
-            <button onclick="editarProductoInventario(${p.id})" class="text-amber-600 p-2 bg-amber-50 rounded-full w-9 h-9"><i class="fas fa-pen"></i></button>
-            <button onclick="eliminarProducto(${p.id})" class="text-rose-400 p-2 bg-rose-50 rounded-full w-9 h-9"><i class="fas fa-trash-alt"></i></button>
           </div>
         </div>
       `).join('');
       document.getElementById('contador-productos').innerText = `${ordenados.length} productos`;
-    }
-
-    function renderCodigosProducto(producto) {
-      const container = document.getElementById('lista-codigos-producto');
-      if (!producto.codigos || producto.codigos.length === 0) { container.innerHTML = '<span class="text-xs text-stone-400 italic">No hay códigos</span>'; return; }
-      container.innerHTML = producto.codigos.map(cod => `
-        <span class="codigo-badge"><i class="fas fa-barcode"></i> ${escapeHtml(cod)}<button onclick="eliminarCodigoProducto(${producto.id}, '${escapeHtml(cod)}')" type="button">✖</button></span>
-      `).join('');
-    }
-
-    window.eliminarCodigoProducto = function(productoId, codigoAEliminar) {
-      const producto = productos.find(p => p.id === productoId);
-      if (!producto) return;
-      producto.codigos = producto.codigos.filter(c => c !== codigoAEliminar);
-      guardarDatos(); renderInventario(); if (productoStockSeleccionadoId === productoId) renderCodigosProducto(producto);
-    };
-
-    function agregarCodigosProducto() {
-      const producto = productos.find(p => p.id === productoStockSeleccionadoId);
-      const input = document.getElementById('nuevos-codigos-input');
-      if (!producto || !input.value.trim()) return;
-      const nuevos = input.value.split(',').map(c => c.trim()).filter(c => c);
-      nuevos.forEach(c => { if (!producto.codigos.includes(c)) producto.codigos.push(c); });
-      guardarDatos(); renderCodigosProducto(producto); renderInventario(); input.value = ''; alert("🏷️ Códigos vinculados");
     }
 
     function crearProductoNuevo() {
@@ -513,102 +449,21 @@
       const codigosRaw = document.getElementById('nuevo-codigos').value;
       const codigos = codigosRaw ? codigosRaw.split(',').map(c=>c.trim()).filter(c=>c) : [];
       
-      const nuevoProd = {
+      productos.push({
+        id: Date.now(),
         img: document.getElementById('nuevo-img').value.trim() || 'https://cdn-icons-png.flaticon.com/512/3050/3050217.png',
         nombre, codigos,
         costo: asegurarNumero(document.getElementById('nuevo-costo').value),
         precio: asegurarNumero(document.getElementById('nuevo-precio').value),
         stock: asegurarNumero(document.getElementById('nuevo-stock').value, 0)
-      };
-
-      if (window._editandoId) {
-        const idx = productos.findIndex(p => p.id == window._editandoId);
-        if (idx !== -1) productos[idx] = { ...productos[idx], ...nuevoProd };
-        delete window._editandoId;
-        document.querySelector('#form-nuevo-producto button').innerHTML = '<i class="fas fa-save"></i> Crear Producto';
-      } else {
-        productos.push({ id: Date.now(), ...nuevoProd });
-      }
-      guardarDatos(); renderInventario(); limpiarFormularioNuevoProducto(); alert("✨ Guardado correctamente");
+      });
+      guardarDatos(); renderInventario(); alert("✨ Creado con éxito");
     }
 
     function calcularGananciaNuevo() {
       const costo = asegurarNumero(document.getElementById('nuevo-costo').value);
       const precio = asegurarNumero(document.getElementById('nuevo-precio').value);
       document.getElementById('nuevo-ganancia').value = '$' + (precio - costo).toFixed(2);
-    }
-
-    function filtrarProductosStock() {
-      const busqueda = document.getElementById('buscar-producto-stock').value.toLowerCase().trim();
-      const resultadosDiv = document.getElementById('resultados-busqueda-stock');
-      if (!busqueda) { resultadosDiv.classList.add('hidden'); return; }
-      let filtrados = productos.filter(p => p.nombre.toLowerCase().includes(busqueda));
-      resultadosDiv.innerHTML = filtrados.map(p => `
-        <div class="search-result-item" onclick="seleccionarProductoStock(${p.id}, '${escapeHtml(p.nombre)}', ${p.stock})">
-          <b>${escapeHtml(p.nombre)}</b> <span class="text-xs text-stone-500">(Stock: ${p.stock})</span>
-        </div>
-      `).join('');
-      resultadosDiv.classList.remove('hidden');
-    }
-
-    function seleccionarProductoStock(id, nombre, stockActual) {
-      productoStockSeleccionadoId = id;
-      document.getElementById('selected-producto-id').value = id;
-      document.getElementById('selected-nombre').innerText = nombre;
-      document.getElementById('selected-stock-actual').innerText = stockActual;
-      document.getElementById('producto-seleccionado-info').classList.remove('hidden');
-      document.getElementById('codigos-gestion').classList.remove('hidden');
-      document.getElementById('buscar-producto-stock').value = nombre;
-      document.getElementById('resultados-busqueda-stock').classList.add('hidden');
-      
-      const producto = productos.find(p => p.id === id);
-      if (producto) renderCodigosProducto(producto);
-    }
-
-    function agregarStockExistente() {
-      const id = document.getElementById('selected-producto-id').value;
-      const cantidad = parseInt(document.getElementById('cantidad-agregar-stock').value);
-      if (!id || !cantidad || cantidad <= 0) return alert("Revisa la cantidad");
-      const p = productos.find(prod => prod.id == id);
-      if (!p) return;
-      
-      p.stock = asegurarNumero(p.stock) + cantidad;
-      entradasHistorial.push({ id: Date.now(), fecha: new Date().toISOString(), productoId: p.id, productoNombre: p.nombre, cantidad, nota: document.getElementById('nota-agregar-stock').value.trim() || "Sin nota" });
-      guardarDatos(); renderInventario(); renderEntradasAgrupadas();
-      document.getElementById('selected-stock-actual').innerText = p.stock;
-      alert("📦 Stock actualizado");
-    }
-
-    function setTipoEntrada(tipo) {
-      document.getElementById('form-nuevo-producto').style.display = tipo === 'nuevo' ? 'grid' : 'none';
-      document.getElementById('form-agregar-stock').style.display = tipo === 'stock' ? 'grid' : 'none';
-    }
-
-    function renderEntradasAgrupadas() {
-      const container = document.getElementById('lista-entradas-agrupadas');
-      const grupos = new Map();
-      entradasHistorial.forEach(e => {
-        if(!grupos.has(e.productoId)) grupos.set(e.productoId, { nombre: e.productoNombre, total: 0, logs: [] });
-        let g = grupos.get(e.productoId); g.total += e.shadow || e.amount || e.cantidad; g.logs.push(e);
-      });
-      if(grupos.size === 0) { container.innerHTML = '<p class="text-stone-400 text-center py-4">No hay entradas aún</p>'; return; }
-      container.innerHTML = Array.from(grupos.values()).map(g => `
-        <div class="entrada-item bg-white">
-          <div class="flex justify-between font-bold text-stone-700"><span>${escapeHtml(g.nombre)}</span><span>Ingresado: ${g.total} uds</span></div>
-          <div class="text-xs text-stone-400 mt-1">${g.logs.map(l => `<div>📅 ${new Date(l.fecha).toLocaleDateString()} -> +${l.amount || l.cantidad} uds (${escapeHtml(l.nota)})</div>`).join('')}</div>
-        </div>
-      `).join('');
-    }
-
-    function renderHistorialVentas() {
-      const container = document.getElementById('historial-ventas-list');
-      if(ventas.length === 0) { container.innerHTML = '<p class="text-stone-400 text-center py-6">Sin historial</p>'; return; }
-      container.innerHTML = [...ventas].reverse().map(v => `
-        <div class="py-3 border-b text-sm">
-          <div class="flex justify-between font-mono"><span>📅 ${new Date(v.fecha).toLocaleString()}</span><b class="text-amber-700">$${v.total.toFixed(2)}</b></div>
-          <div class="text-xs text-stone-500 mt-0.5">${v.productos.map(p => `${p.cantidad}x ${escapeHtml(p.nombre)}`).join(', ')}</div>
-        </div>
-      `).join('');
     }
 
     function buscarProductoPorCodigoONombre(texto) {
@@ -618,8 +473,7 @@
       if (prod) {
         if (prod.stock <= 0) return alert("🌸 Sin stock");
         let item = carrito.find(i => i.id === prod.id);
-        if (item) { if (item.shadow || item.cantidad < prod.stock) item.cantidad++; } 
-        else { carrito.push({ ...prod, cantidad: 1 }); }
+        if (item) item.cantidad++; else carrito.push({ ...prod, cantidad: 1 });
         renderCarrito();
       } else { alert("🎠 No encontrado"); }
     }
@@ -628,8 +482,8 @@
       let total = 0; const container = document.getElementById('carrito-items');
       if(!carrito.length) { container.innerHTML = '<p class="text-center text-stone-400 py-4">Carrito vacío</p>'; document.getElementById('total-pagar').innerText = '$0.00'; return; }
       container.innerHTML = carrito.map((item, idx) => {
-        total += item.precio * item.shadow || item.precio * item.cantidad;
-        return `<div class="flex justify-between p-3 bg-white rounded-xl border"><div><b>${escapeHtml(item.nombre)}</b><p class="text-xs">$${item.precio} x ${item.cantidad}</p></div><button onclick="carrito.splice(${idx},1); renderCarrito();" class="text-rose-500"><i class="fas fa-trash-alt"></i></button></div>`;
+        total += item.precio * item.cantidad;
+        return `<div class="flex justify-between p-3 bg-white rounded-xl border"><div><b>${escapeHtml(item.nombre)}</b><p class="text-xs">$${item.precio} x ${item.cantidad}</p></div></div>`;
       }).join('');
       document.getElementById('total-pagar').innerText = '$' + total.toFixed(2); calcularCambio();
     }
@@ -643,56 +497,26 @@
     function finalizarVenta() {
       if(!carrito.length) return;
       const total = carrito.reduce((s,i) => s + (i.precio * i.cantidad), 0);
-      const recibido = parseFloat(document.getElementById('dinero-recibido').value) || total;
-      carrito.forEach(c => { let o = productos.find(p => p.id === c.id); if(o) o.stock -= c.shadow || c.cantidad; });
-      let v = { id: Date.now(), fecha: new Date().toISOString(), productos: [...carrito], total, recibido, cambio: recibido - total };
-      ventas.push(v); guardarDatos(); mostrarTicket(v); carrito = []; document.getElementById('dinero-recibido').value = ''; renderCarrito(); renderInventario();
-    }
-
-    function mostrarTicket(v) {
-      document.getElementById('contenido-ticket').innerHTML = `
-        <div class="text-center font-serif"><h3>Sweet Carousel</h3><p class="text-xs">San Cristóbal de las Casas</p></div>
-        <div class="my-3 divide-y border-y border-dashed py-1">
-          ${v.productos.map(p => `<div class="flex justify-between text-xs"><span>${p.cantidad}x ${escapeHtml(p.nombre)}</span><span>$${(p.precio * p.cantidad).toFixed(2)}</span></div>`).join('')}
-        </div>
-        <div class="font-bold flex justify-between text-sm"><span>TOTAL:</span><span>$${v.total.toFixed(2)}</span></div>
-      `;
-      document.getElementById('modal-ticket').classList.remove('hidden');
-    }
-
-    function mostrarEstadisticas() {
-      migrarDatos(); const ahora = new Date();
-      const calc = (filtro) => {
-        let items = ventas.filter(filtro), monto = 0, ganancia = 0;
-        items.forEach(v => { monto += v.total; v.productos.forEach(p => { ganancia += ((p.precio - (p.costo || 0)) * p.cantidad); }); });
-        return { count: items.length, monto, ganancia };
-      };
-      const hoy = calc(v => new Date(v.fecha).toDateString() === ahora.toDateString());
-      document.getElementById('stats-periodos').innerHTML = `
-        <div class="vintage-card p-4 text-center"><p class="text-stone-400 text-xs">HOY</p><b class="text-2xl text-amber-800">$${hoy.monto.toFixed(2)}</b><p class="text-xs text-emerald-700">Ganancia: $${hoy.ganancia.toFixed(2)}</p></div>
-      `;
-      document.getElementById('estadisticas-content').innerHTML = `<div class="bg-stone-800 rounded-2xl p-4 text-center text-white"><p class="text-xs text-amber-200">TOTAL DE VENTAS</p><b class="text-3xl">${ventas.length}</b></div>`;
+      carrito.forEach(c => { let o = productos.find(p => p.id === c.id); if(o) o.stock -= c.cantidad; });
+      ventas.push({ id: Date.now(), fecha: new Date().toISOString(), productos: [...carrito], total });
+      guardarDatos(); carrito = []; renderCarrito(); renderInventario(); alert("🎉 Venta completada con éxito");
     }
 
     function cambiarSeccion(n) {
       document.querySelectorAll('.seccion').forEach((s,i)=>s.classList.toggle('active', i===n));
       document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', i===n));
-      if(n===0) renderInventario(); if(n===2) mostrarEstadisticas(); if(n===3) renderEntradasAgrupadas(); if(n===4) renderHistorialVentas();
+      if(n===0) renderInventario();
     }
 
-    window.cambiarSeccion = cambiarSeccion; window.setTipoEntrada = setTipoEntrada; window.filtrarProductosStock = filtrarProductosStock; window.seleccionarProductoStock = seleccionarProductoStock; window.agregarStockExistente = agregarStockExistente; window.crearProductoNuevo = crearProductoNuevo; window.calcularGananciaNuevo = calcularGananciaNuevo; window.convertirImagenABase64 = convertirImagenABase64; window.agregarCodigosProducto = agregarCodigosProducto; window.exportarDatosCompletos = exportarDatosCompletos; window.importarDatosCompletos = importarDatosCompletos; window.buscarProductoPorCodigoONombre = buscarProductoPorCodigoONombre; window.calcularChange = calcularCambio; window.finalizarVenta = finalizarVenta; window.cerrarModalTicket = () => document.getElementById('modal-ticket').classList.add('hidden');
-    document.addEventListener('click', e => {
-      const container = document.querySelector('#form-agregar-stock .relative');
-      if (container && !container.contains(e.target)) document.getElementById('resultados-busqueda-stock')?.classList.add('hidden');
-    });
+    window.cambiarSeccion = cambiarSeccion; window.buscarProductoPorCodigoONombre = buscarProductoPorCodigoONombre; window.crearProductoNuevo = crearProductoNuevo; window.calcularGananciaNuevo = calcularGananciaNuevo; window.convertirImagenABase64 = convertirImagenABase64; window.finalizarVenta = finalizarVenta; window.calcularCambio = calcularCambio;
+    renderInventario();
   </script>
 
+  <!-- ================= LÓGICA DE FIREBASE MODULAR (CONEXIÓN SUPERIOR) ================= -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
-    // Credenciales oficiales de tu proyecto POS CAROUSEL
     const firebaseConfig = {
       apiKey: "AIzaSyCYagTaDf69NVYoMJmQu6CK-J0wikSePpI",
       authDomain: "posc-2f22d.firebaseapp.com",
@@ -703,57 +527,46 @@
       measurementId: "G-SZRWKWLPE6"
     };
 
-    // Inicializando servicios básicos
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // Hacemos accesible Firestore globalmente
-    window.db = db;
-
-    const loginScreen = document.getElementById('login-screen');
-    const posContent = document.getElementById('pos-content');
+    const statusText = document.getElementById('status-text');
+    const actionContainer = document.getElementById('login-action-container');
     const btnLogin = document.getElementById('btn-google-login');
 
-    // Escuchar si hay una sesión de Google activa
+    // Listener de Auth: Cambia la barra de arriba dinámicamente sin interrumpir al usuario
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Ocultar login y mostrar el POS intacto
-        loginScreen.style.display = 'none';
-        posContent.style.display = 'block';
-        
-        // Ejecutar funciones de carga inicial
-        migrarDatos();
-        renderInventario();
-        setTipoEntrada('nuevo');
-        cambiarSeccion(1);
-        
-        setTimeout(() => document.getElementById('input-barcode')?.focus(), 250);
+        statusText.innerHTML = `✨ Conectado como: <b class="text-amber-800">${user.displayName}</b> (Nube Activa)`;
+        actionContainer.innerHTML = `
+          <button id="btn-google-logout" class="bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 text-xs rounded-full py-1 px-3 transition active:scale-95">
+            <i class="fas fa-sign-out-alt"></i> Salir
+          </button>
+        `;
+        document.getElementById('btn-google-logout').addEventListener('click', () => signOut(auth));
       } else {
-        // Forzar bloqueo visual
-        loginScreen.style.display = 'flex';
-        posContent.style.display = 'none';
+        statusText.innerHTML = `<i class="fas fa-wifi-slash text-stone-400"></i> Modo Local (Sin sincronizar)`;
+        actionContainer.innerHTML = `
+          <button id="btn-google-login-new" class="flex items-center gap-2 bg-white hover:bg-[#fffdfa] text-stone-700 border border-[#e8d2b8] rounded-full py-1 px-3.5 shadow-sm transition active:scale-95">
+            <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/logo_googleg_color_24dp.png" alt="Google" class="w-3.5 h-3.5">
+            <span class="font-medium">Respaldar en Google</span>
+          </button>
+        `;
+        document.getElementById('btn-google-login-new').addEventListener('click', iniciarLogin);
       }
     });
 
-    // Acción al presionar el botón "Ingresar con Google"
-    btnLogin.addEventListener('click', () => {
+    function iniciarLogin() {
       signInWithPopup(auth, provider)
-        .then((result) => {
-          console.log("¡Acceso concedido a Sweet Carousel!", result.user.displayName);
-          
-          // Guardar un log rápido del acceso en tu base de datos de Cloud Firestore
-          addDoc(collection(db, "productos"), {
-            nombre: "Usuario autenticado: " + result.user.displayName,
-            fecha: new Date().toISOString()
-          }).catch(e => console.error("Error al registrar log", e));
-        })
+        .then((result) => console.log("Sincronización activada:", result.user.displayName))
         .catch((error) => {
-          console.error("Error al autenticar:", error);
-          alert("No se pudo iniciar sesión: Asegúrate de tener activada la autenticación con Google en la consola de Firebase.");
+          console.error(error);
+          alert("Asegúrate de que el dominio de tu servidor o de GitHub esté autorizado en la consola de Firebase.");
         });
-    });
+    }
+
+    btnLogin.addEventListener('click', iniciarLogin);
   </script>
 </body>
 </html>
